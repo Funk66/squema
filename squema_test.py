@@ -20,7 +20,7 @@ class SampleModel(Squema):
     entity: Entity
     newint: NewInt
     choice: Choice
-    default: float = .0
+    default: float = 0.0
 
 
 sample_data = {
@@ -61,7 +61,7 @@ def test_convert_values():
 
 def test_default_values():
     model = SampleModel(**sample_data)
-    assert model.default == .0
+    assert model.default == 0.0
 
 
 def test_nested_squemas():
@@ -75,27 +75,27 @@ def test_inheritance():
         data: dict
         default: float = 1.0
 
-    model = Submodel(data=[('a', 1)], **sample_data)
-    assert model.data == {'a': 1}
+    model = Submodel(data=[("a", 1)], **sample_data)
+    assert model.data == {"a": 1}
     check_sample_model(model)
 
 
 def test_extra_values():
     model = SampleModel(extra=True, **sample_data)
-    assert 'extra' not in model
+    assert "extra" not in model
     with raises(AttributeError):
         model.extra
     with raises(KeyError):
-        model['extra']
+        model["extra"]
 
 
 def test_extra_attributes():
     model = SampleModel(**sample_data)
     model.attr = True
-    assert 'attr' not in model
+    assert "attr" not in model
     assert model.attr is True
     with raises(KeyError):
-        model['attr']
+        model["attr"]
 
 
 def test_spread_operator():
@@ -111,13 +111,13 @@ def test_attribute_definitions():
 
     model = Model()
     assert model.number == 0
-    assert 'other' not in model
-    assert '__string__' not in model
+    assert "other" not in model
+    assert "__string__" not in model
     assert model.other is True
 
 
 def test_override_field():
-    TinyInt = IntEnum('TinyInt', ['one', 'two'])
+    TinyInt = IntEnum("TinyInt", ["one", "two"])
 
     class Submodel(SampleModel):
         number: TinyInt
@@ -132,25 +132,25 @@ def test_date_decoders():
         time: time
         datetime: datetime
 
-    model = Model('1999-12-31',  '23:59:59', '1999-12-31T23:59:59')
+    model = Model("1999-12-31", "23:59:59", "1999-12-31T23:59:59")
     assert model.date == date(1999, 12, 31)
     assert model.time == time(23, 59, 59)
     assert model.datetime == datetime(1999, 12, 31, 23, 59, 59)
-    model = Model(datetime='1999-12-31 23:59:59')
+    model = Model(datetime="1999-12-31 23:59:59")
     assert model.datetime == datetime(1999, 12, 31, 23, 59, 59)
 
 
 def test_date_encoders():
-    assert Squema.encode(date(1999, 12, 31)) == '1999-12-31'
+    assert Squema.encode(date(1999, 12, 31)) == "1999-12-31"
 
 
 def test_repr():
     model = SampleModel(number=1)
-    assert repr(model) == 'SampleModel(number=1, default=0.0)'
+    assert repr(model) == "SampleModel(number=1, default=0.0)"
     model = SampleModel(**sample_data)
     assert repr(model) == (
         "SampleModel(number=1, string='1', entity=Entity(boolean=True), "
-        'newint=1, choice=<Choice.yes: 1>, default=0.0)'
+        "newint=1, choice=<Choice.yes: 1>, default=0.0)"
     )
 
 
@@ -179,7 +179,7 @@ def test_default_config():
 def test_config_options():
     config = Config(mutable=True, encoders={int: float})
     options = list(config.options())
-    assert options == [('mutable', True), ('encoders', {int: float})]
+    assert options == [("mutable", True), ("encoders", {int: float})]
 
 
 def test_strict_mode():
@@ -204,9 +204,9 @@ def test_mutable_squema():
     assert model.number == 1
     model.number = 2
     assert model.number == 2
-    model['number'] = 3
+    model["number"] = 3
     assert model.number == 3
-    del model['number']
+    del model["number"]
     assert model.number is UNSET
 
 
@@ -217,4 +217,4 @@ def test_immutable_squema():
     with raises(TypeError):
         model.number = 2
     with raises(TypeError):
-        del model['number']
+        del model["number"]
