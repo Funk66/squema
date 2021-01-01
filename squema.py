@@ -9,11 +9,16 @@ from typing import Any, Dict
 from collections import OrderedDict
 from inspect import isclass
 
+try:
+    from msgpack import packb
+except ImportError:
+    packb = None
+
 __author__ = "Guillermo Guirao Aguilar"
 __email__ = "contact@guillermoguiraoaguilar.com"
 __license__ = "MIT"
 __version__ = "0.0.1"
-
+__all__ = ["Squema", "Config"]
 
 UNSET = type("UNSET", (), {"__repr__": lambda self: "UNSET"})()
 
@@ -34,6 +39,7 @@ def parser(entity):
 class Config:
     strict = False
     mutable = False
+    msgpack = False
     encoders: Dict[Any, Any] = {
         UUID: str,
         Decimal: float,
@@ -58,11 +64,13 @@ class Config:
         *,
         strict: bool = False,
         mutable: bool = False,
+        msgpack: bool = False,
         encoders: Dict[Any, Any] = None,
         decoders: Dict[Any, Any] = None,
     ):
         self.strict = strict
         self.mutable = mutable
+        self.msgpack = msgpack
         self.encoders = self.encoders.copy()
         self.encoders.update(encoders or {})
         self.decoders = self.decoders.copy()
@@ -105,6 +113,13 @@ class MetaSquema(type):
                 fields[key] = namespace[key]
             elif key not in fields:
                 fields[key] = UNSET
+
+        if namespace['__config__'].msgpack:
+            if not packb:
+                raise ImportError("'msgpack' module is not available")
+            namespace['__dump__'] = packb
+        else:
+            namespace['__dump__'] = dumps
 
         new_namespace = {
             **{k: v for k, v in namespace.items() if k not in fields},

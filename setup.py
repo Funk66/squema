@@ -11,6 +11,7 @@ setup(
     py_modules=["squema"],
     description="Smarter data structures",
     url="https://github.com/Funk66/squema",
+    extras_require={'msgpack': ['msgpack']},
     license="MIT",
     classifiers=["Programming Language :: Python :: 3.7"],
 )
